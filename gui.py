@@ -4,7 +4,6 @@ from registration_logic import RegisterLogic
 from add import AddWindow
 from tkinter import ttk
 from read_data import ReadData
-from modify_data import Modify
 
 class Main:
     def globalVariable(self, username):
@@ -69,24 +68,19 @@ class Main:
     def selectItem(self, event):
                 curItem = self.tree.item(self.tree.focus())
                 col = self.tree.identify_column(event.x)
+                id = curItem['values'][0]
 
                 if col == '#1':
                     pass
                 elif col == '#2':
-                    id = curItem['values'][0]
                     what = 'name'
                     name = curItem['values'][1]
                 elif col == '#3':
-                    id = curItem['values'][0]
                     what = 'login'
                     name = curItem['values'][2]
                 elif col == '#4':
-                    id = curItem['values'][0]
                     what = 'password'
                     name = curItem['values'][3]
-                
-                m = Modify()
-                m.window(what, name, globalUser, id)
                           
 
     def __init__(self):
