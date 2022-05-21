@@ -4,6 +4,7 @@ from registration_logic import RegisterLogic
 from add import AddWindow
 from tkinter import ttk
 from read_data import ReadData
+from modify_data import Modify
 
 class Main:
     def globalVariable(self, username):
@@ -81,14 +82,16 @@ class Main:
                 elif col == '#4':
                     what = 'password'
                     name = curItem['values'][3]
-                          
+                m = Modify()
+                print(what, name, globalUser, id)
+                m.window(what, name, globalUser, id)
+
 
     def __init__(self):
         self.root = tk.Tk()
         self.root.geometry("420x520")
         # set minimum window size value
         self.root.minsize(420, 520)
-        
         # set maximum window size value
         self.root.maxsize(420, 520)
         self.root.title("MyPass")

@@ -60,6 +60,3 @@ class AddWindow:
         self.cursor.execute(query, (page, login, password))
         self.conn.commit()        
     
-a = AddWindow()
-a.window()
-a.root.mainloop
