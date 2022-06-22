@@ -1,9 +1,10 @@
 import sqlite3
 import tkinter as tk
+from encrypt import EDPassword
 
 class Modify():
     def __init__(self):
-        self.conn = sqlite3.connect("database.db")
+        self.conn = sqlite3.connect(".database.db")
         self.cursor = self.conn.cursor()
         self.root = tk.Tk()
         self.root.geometry("260x140")
@@ -18,7 +19,6 @@ class Modify():
         self.name = name
         self.user = user 
         self.id = id
-        print(self.what, self.name, self.user, self.id)
         window2Side = tk.Label(self.root, 
                                 text=self.what,
                                 font=('Arial',22,'bold'),
@@ -40,14 +40,22 @@ class Modify():
                                     command= lambda: self.mod(e1.get()))
         window2AddButton.place(y=105, relx = 0.5, anchor = tk.CENTER)
         
-    def mod(self, changeName ):
-        query = f"UPDATE {self.user} SET {self.what} = '{changeName}' WHERE id = '{self.id}'"
+    def mod(self, changeName):
+        print(self.what)
+        print(self.user)
+        print(self.id)
+
+
+        enc = EDPassword()
+        changeN = enc.enc(changeName)
+        print(f"UPDATE {self.user} SET {self.what} = {changeN} WHERE id = {self.id}")
+        query = f"UPDATE {self.user} SET {self.what} = {changeN} WHERE id = {self.id}"
         self.cursor.execute(query)
         self.conn.commit()
         print("zmiana")
 
 '''
 m = Modify()
-m.window('login', "login", 'admin', 2)
+m.window('login', "login", 'admin1', 1)
 m.root.mainloop()
 '''

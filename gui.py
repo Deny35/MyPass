@@ -1,10 +1,14 @@
 import tkinter as tk
+import pyperclip
 from login_logic import Loginlogic
 from registration_logic import RegisterLogic
 from add import AddWindow
 from tkinter import ttk
 from read_data import ReadData
 from modify_data import Modify
+from del_data import Delete
+from encrypt import Dencrypted, EDPassword
+from show_pass import Show
 
 class Main:
     def globalVariable(self, username):
@@ -24,7 +28,7 @@ class Main:
         logic  = Loginlogic()
         Main.globalVariable(self, username)
         result = logic.check_user(username, password)
-        if result is not None:
+        if result is True:
             try:
                 self.frame1.pack_forget()
             except:
@@ -54,23 +58,20 @@ class Main:
 
     def addAccount(self):
         add = AddWindow()
-        add.window()
-        del add
+        add.window(globalUser)
         return True
 
     def readAData(self):
         try:
             read = ReadData()
-            print(read.readData(globalUser))
             return read.readData(globalUser)
         except:
             pass
     
-    def selectItem(self, event):
+    def selectItemEdit(self, event):
                 curItem = self.tree.item(self.tree.focus())
                 col = self.tree.identify_column(event.x)
                 id = curItem['values'][0]
-
                 if col == '#1':
                     pass
                 elif col == '#2':
@@ -83,9 +84,40 @@ class Main:
                     what = 'password'
                     name = curItem['values'][3]
                 m = Modify()
-                print(what, name, globalUser, id)
                 m.window(what, name, globalUser, id)
 
+    def selectItemDel(self, event):
+        curItem = self.tree.item(self.tree.focus())
+        col = self.tree.identify_column(event.x)
+        id = curItem['values'][0]
+        d = Delete()
+        d.del_account(globalUser, id)
+
+    def select(self, event):
+        self.selected = event.widget.selection()
+
+    def delRecord(self):
+        for idx in self.selected:
+            id = (self.tree.item(idx)['values'][0])
+            d = Delete()
+            d.del_account(globalUser, id)
+    
+    def showPassword(self):
+        for idx in self.selected:
+            id = (self.tree.item(idx)['values'][0])   
+            show = Show()
+            show.window(globalUser, id)
+
+    def copyPassword(self):
+        for idx in self.selected:
+            id = (self.tree.item(idx)['values'][0])
+            read = ReadData()
+            password = read.readPasword(globalUser, id)
+            print(password)
+            den =EDPassword()
+            pas = den.denc(password)
+            print(pas[0])
+            pyperclip.copy(pas)
 
     def __init__(self):
         self.root = tk.Tk()
@@ -215,15 +247,26 @@ class Main:
         #self.root.mainloop()
         
     def f3(self):
-        def loop():
-            a = Main.addAccount(self)
-            if a==True:
-                print("a")
-                tree()
+        def loop(a):
+            if a == 'add':
+                self.addAccount()
+            elif a == 'del':
+                self.delRecord()
+            elif a == 'show':
+                self.showPassword()
+            elif a == 'copy':
+                self.copyPassword()
+            tree()
+
+
+            tree()
         self.frame3 = tk.Frame(bg="#9da7d1")
         def tree():       
             self.tree = ttk.Treeview(self.frame3, columns= ('id', 'Name', 'Login', 'Password'), show='headings')
-            self.tree.bind('<ButtonRelease-1>', self.selectItem)
+            self.tree.bind('<Delete>', self.selectItemDel)
+            self.tree.bind('<F5>', loop)
+            self.tree.bind('<Double-1>', self.selectItemEdit)
+            self.tree.bind('<<TreeviewSelect>>', self.select)
            
             self.tree.heading('id', text='id')
             self.tree.heading('Name', text='Name')
@@ -238,9 +281,11 @@ class Main:
             global accounts 
             accounts = Main.readAData(self)
             
+            dec = Dencrypted()
             try:
                 for n in range(0, len(accounts)):
-                    contacts.append((accounts[n][0], accounts[n][1], accounts[n][2], accounts[n][3]))
+                    deco = dec.denc(accounts[n][1], accounts[n][2])
+                    contacts.append((accounts[n][0], deco[0], deco[1], '********'))
 
                 for contact in contacts:
                     self.tree.insert('', tk.END, values=contact)
@@ -259,30 +304,34 @@ class Main:
         tree()
 
         self.frame3Modify = tk.Button(self.frame3, 
-                                    text="Modify",
+                                    text="Refresh",
                                     height=2,
-                                    width=20)
+                                    width=20,
+                                    command= lambda: (loop('ref')))
         self.frame3Modify.place(y=225, relx = (0))
         self.frame3Add = tk.Button(self.frame3, 
                                     text="Add",
                                     height=2,
                                     width=20,
-                                    command= lambda: (loop()))
+                                    command= lambda: (loop('add')))
         self.frame3Add.place(y=225, relx = (0.20))
         self.frame3Delete = tk.Button(self.frame3, 
                                     text="Delete",
                                     height=2,
-                                    width=20)
+                                    width=20,
+                                    command= lambda: (loop('del')))
         self.frame3Delete.place(y=225, relx = (0.40))
         self.frame3ViewPassword = tk.Button(self.frame3, 
                                     text="View password",
                                     height=2,
-                                    width=20)
+                                    width=20,
+                                    command= lambda: (loop('show')))
         self.frame3ViewPassword.place(y=225, relx = (0.60))
         self.frame3CopyPassword = tk.Button(self.frame3, 
                                     text="Copy password",
                                     height=2,
-                                    width=20)
+                                    width=20,
+                                    command= lambda: (loop('copy')))
         self.frame3CopyPassword.place(y=225, relx = (0.80))
 
 

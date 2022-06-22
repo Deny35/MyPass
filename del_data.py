@@ -2,7 +2,7 @@ import sqlite3
 
 class Delete:
     def __init__(self):
-        self.conn = sqlite3.connect("database.db")
+        self.conn = sqlite3.connect(".database.db")
         self.cursor = self.conn.cursor()
     def __del__ (self):
         self.cursor.close()

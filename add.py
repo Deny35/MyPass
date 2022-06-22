@@ -1,10 +1,10 @@
 import tkinter as tk
 import sqlite3
-
+from encrypt import Encrypted
 class AddWindow:
 
     def __init__(self):
-        self.conn = sqlite3.connect("database.db")
+        self.conn = sqlite3.connect(".database.db")
         self.cursor = self.conn.cursor()
         self.root = tk.Tk()
         self.root.geometry("260x260")
@@ -14,7 +14,7 @@ class AddWindow:
         self.cursor.close()
         self.conn.close()
 
-    def window(self):
+    def window(self, user):
         window2Side = tk.Label(self.root, 
                                 text="Website",
                                 font=('Arial',22,'bold'),
@@ -49,14 +49,16 @@ class AddWindow:
                                     text="Add",
                                     height=3,
                                     width=20,
-                                    command= lambda: AddWindow.add(self, e1.get(), e2.get(), e3.get()))
+                                    command= lambda: AddWindow.add(self, e1.get(), e2.get(), e3.get(), user))
         window2AddButton.place(y=215, relx = 0.5, anchor = tk.CENTER)
-    def add(self, side, login, passwords):
-        self.add_account( side, login, passwords)
-        self.root.destroy()
-    
-    def add_account(self, page, login, password):
-        query = 'INSERT INTO admin (name, login, password) VALUES (?, ?, ?)'
-        self.cursor.execute(query, (page, login, password))
-        self.conn.commit()        
+    def add(self, side, login, passwords, user):
+        self.add_account( side, login, passwords, user)
+
+    def add_account(self, page, login, password, user):
+        en = Encrypted()
+        enc = en.enc(page, login, password)
+        query = f'INSERT INTO {user} (name, login, password) VALUES (?, ?, ?)'
+        self.cursor.execute(query, (enc[0], enc[1], enc[2]))
+        self.conn.commit()    
+        self.root.destroy()    
     
